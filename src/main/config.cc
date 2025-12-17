@@ -58,7 +58,35 @@ int config_from_jsobject(as_config *config, Local<Object> configObj, AerospikeCl
 	Local<Value> v8_sharedMemory =
 		Nan::Get(configObj, Nan::New("sharedMemory").ToLocalChecked())
 			.ToLocalChecked();
+	Local<Value> v8_preferred_nodes =
+		Nan::Get(configObj, Nan::New("preferredNodes").ToLocalChecked())
+			.ToLocalChecked();
 
+	if (v8_preferred_nodes->IsArray()) {
+		Local<Array> nodes = Local<Array>::Cast(v8_preferred_nodes);
+
+		for (uint32_t i = 0; i < nodes->Length(); i++) {
+			Local<Value> v8_node =
+				Nan::Get(nodes, i).ToLocalChecked();
+			if (v8_node->IsString()) {
+				Nan::Utf8String node(v8_node);
+				as_config_add_preferred_node(config, *node);
+			}
+			else {
+				as_v8_error(log, "preferredNodes[%d] should be a string", i);
+				rc = AS_NODE_PARAM_ERR;
+				goto Cleanup;
+			}
+		}
+	}
+	else if (v8_preferred_nodes->IsUndefined()) {
+		// ignore
+	}
+	else {
+		as_v8_error(log, "'preferredNodes' config must be an array");
+		rc = AS_NODE_PARAM_ERR;
+		goto Cleanup;
+	}
 
 	if (v8_config_provider->IsObject()) {
 

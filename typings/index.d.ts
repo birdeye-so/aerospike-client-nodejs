@@ -7872,6 +7872,11 @@ export class Config {
     public user?: string;
 
     /**
+     * List of preferred nodes in cluster.
+     */
+    public preferredNodes: string[];
+
+    /**
      * Construct an instance of the Config class.
      */
     constructor(config?: ConfigOptions);
@@ -10379,6 +10384,11 @@ export interface ConfigOptions {
      *
      */
     user?: string;
+
+    /**
+     * List of preferred nodes in cluster.
+     */
+    public preferredNodes?: string[];
 
 }
 
